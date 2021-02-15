@@ -34,9 +34,9 @@ namespace DotNetConf.Api.Controllers
         [ProducesResponseType(typeof(BaseResponseModel), 400)]
         [ProducesResponseType(typeof(BaseResponseModel), 404)]
         [SwaggerOperation(
-            Summary = "Get User's information",
-            Description = "Get User's information description",
-            Tags = new string[] { "User Get" })]
+            Summary = "Get Token",
+            Description = "Get Token description",
+            Tags = new string[] { "Auth" })]
         public ActionResult GetToken([FromBody]IdentityRequestModel model)
         {
             if (model.UserName != "user" || model.Password != "1234")

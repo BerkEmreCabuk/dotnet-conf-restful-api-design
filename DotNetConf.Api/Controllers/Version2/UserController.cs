@@ -24,7 +24,7 @@ namespace DotNetConf.Api.Controllers.Version2
             _mediator = mediator;
         }
 
-        [HttpGet("{id:long}", Name = nameof(GetById))]
+        [HttpGet("{id:long}")]
         [ProducesResponseType(typeof(BaseResponseModel<UserModel>), 200)]
         [ProducesResponseType(typeof(BaseResponseModel), 400)]
         [ProducesResponseType(typeof(BaseResponseModel), 404)]
@@ -40,7 +40,7 @@ namespace DotNetConf.Api.Controllers.Version2
             return Ok(response);
         }
 
-        [HttpDelete("{id:long}", Name = nameof(DeleteById))]
+        [HttpDelete("{id:long}")]
         [ProducesResponseType(typeof(BaseResponseModel), 202)]
         [ProducesResponseType(typeof(BaseResponseModel), 400)]
         [ProducesResponseType(typeof(BaseResponseModel), 401)]

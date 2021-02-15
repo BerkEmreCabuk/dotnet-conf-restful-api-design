@@ -27,7 +27,7 @@ namespace DotNetConf.Api.Controllers
             _linkGenerator = linkGenerator;
         }
 
-        [HttpGet("{username}", Name = nameof(GetByUsername))]
+        [HttpGet("{username}", Name = nameof(UserGetByUsername))]
         [ProducesResponseType(typeof(BaseResponseModel<UserModel>), 200)]
         [ProducesResponseType(typeof(BaseResponseModel), 400)]
         [ProducesResponseType(typeof(BaseResponseModel), 404)]
@@ -37,13 +37,13 @@ namespace DotNetConf.Api.Controllers
             Summary = "Get User's information",
             Description = "Get User's information description",
             Tags = new string[] { "User Get" })]
-        public async Task<ActionResult<UserModel>> GetByUsername(string username)
+        public async Task<ActionResult<UserModel>> UserGetByUsername(string username)
         {
             var response = new BaseResponseModel<UserModel>(await _mediator.Send(new GetUserQuery(username)));
             return Ok(CreateLinksForUser(response));
         }
 
-        [HttpGet(Name = nameof(GetList))]
+        [HttpGet(Name = nameof(UserGetList))]
         [ProducesResponseType(typeof(BaseResponseModel<List<UserModel>>), 200)]
         [ProducesResponseType(typeof(BaseResponseModel), 400)]
         [ProducesResponseType(typeof(BaseResponseModel), 404)]
@@ -52,12 +52,12 @@ namespace DotNetConf.Api.Controllers
             Summary = "Get User List",
             Description = "Get User list description",
             Tags = new string[] { "User Get" })]
-        public async Task<ActionResult<UserModel>> GetList()
+        public async Task<ActionResult<UserModel>> UserGetList()
         {
             return Ok(new BaseResponseModel<List<UserModel>>(await _mediator.Send(new GetUsersQuery())));
         }
 
-        [HttpPost(Name = nameof(Create))]
+        [HttpPost(Name = nameof(UserCreate))]
         [ProducesResponseType(typeof(BaseResponseModel<UserModel>), 201)]
         [ProducesResponseType(typeof(BaseResponseModel), 400)]
         [ProducesResponseType(typeof(BaseResponseModel), 401)]
@@ -66,13 +66,13 @@ namespace DotNetConf.Api.Controllers
             Summary = "Create User",
             Description = "Create User description",
             Tags = new string[] { "User Post" })]
-        public async Task<ActionResult<UserModel>> Create([FromBody] CreateUserCommand model)
+        public async Task<ActionResult<UserModel>> UserCreate([FromBody] CreateUserCommand model)
         {
             var response = new BaseResponseModel<UserModel>(await _mediator.Send(model));
             return Created(string.Empty, CreateLinksForUser(response));
         }
 
-        [HttpPut(Name = nameof(Update))]
+        [HttpPut(Name = nameof(UserUpdate))]
         [ProducesResponseType(typeof(BaseResponseModel<UserModel>), 201)]
         [ProducesResponseType(typeof(BaseResponseModel<UserModel>), 200)]
         [ProducesResponseType(typeof(BaseResponseModel), 400)]
@@ -82,7 +82,7 @@ namespace DotNetConf.Api.Controllers
             Summary = "Update User",
             Description = "Update User description",
             Tags = new string[] { "User Put" })]
-        public async Task<ActionResult<UserModel>> Update([FromBody] UpdateUserCommand model)
+        public async Task<ActionResult<UserModel>> UserUpdate([FromBody] UpdateUserCommand model)
         {
             var (userModel, isCreated) = await _mediator.Send(model);
             return isCreated
@@ -90,7 +90,7 @@ namespace DotNetConf.Api.Controllers
                 : Ok(CreateLinksForUser(new BaseResponseModel<UserModel>(userModel)));
         }
 
-        [HttpDelete("{username}", Name = nameof(DeleteByUsername))]
+        [HttpDelete("{username}", Name = nameof(UserDeleteByUsername))]
         [ProducesResponseType(typeof(BaseResponseModel), 202)]
         [ProducesResponseType(typeof(BaseResponseModel), 400)]
         [ProducesResponseType(typeof(BaseResponseModel), 401)]
@@ -99,7 +99,7 @@ namespace DotNetConf.Api.Controllers
             Summary = "Delete User",
             Description = "Delete User description",
             Tags = new string[] { "User Delete" })]
-        public async Task<ActionResult<UserModel>> DeleteByUsername(string username)
+        public async Task<ActionResult<UserModel>> UserDeleteByUsername(string username)
         {
             await _mediator.Send(new DeleteUserCommand(username));
             return Ok(CreateLinksForUser(new BaseResponseModel("User deleted successfully.")));
@@ -111,12 +111,12 @@ namespace DotNetConf.Api.Controllers
             if (!HttpContext.Request.RouteValues.TryGetValue("version", out var version))
                 version = ApiVersion.Default;
 
-            if (!string.IsNullOrEmpty(_linkGenerator.GetPathByAction(HttpContext, nameof(GetByUsername), controllerName, new { version = version.ToString() })))
+            if (!string.IsNullOrEmpty(_linkGenerator.GetPathByAction(HttpContext, nameof(UserGetByUsername), controllerName, new { version = version.ToString() })))
             {
                 model.Links.Add(
                 new LinkModel
                 {
-                    Href = _linkGenerator.GetPathByAction(HttpContext, nameof(GetByUsername), controllerName, new { version = version.ToString() }),
+                    Href = _linkGenerator.GetPathByAction(HttpContext, nameof(UserGetByUsername), controllerName, new { version = version.ToString() }),
                     Method = HttpMethod.Get.ToString(),
                     Description = "Get User's information"
                 });
@@ -124,21 +124,21 @@ namespace DotNetConf.Api.Controllers
             model.Links.Add(
                 new LinkModel
                 {
-                    Href = _linkGenerator.GetPathByAction(HttpContext, nameof(GetList), controllerName, new { version = version.ToString() }),
+                    Href = _linkGenerator.GetPathByAction(HttpContext, nameof(UserGetList), controllerName, new { version = version.ToString() }),
                     Method = HttpMethod.Get.ToString(),
                     Description = "Get User list"
                 });
             model.Links.Add(
             new LinkModel
             {
-                Href = _linkGenerator.GetPathByAction(HttpContext, nameof(Create), controllerName, new { version = version.ToString() }),
+                Href = _linkGenerator.GetPathByAction(HttpContext, nameof(UserCreate), controllerName, new { version = version.ToString() }),
                 Method = HttpMethod.Post.ToString(),
                 Description = "Create User"
             });
             model.Links.Add(
             new LinkModel
             {
-                Href = _linkGenerator.GetPathByAction(HttpContext, nameof(Update), controllerName, new { version = version.ToString() }),
+                Href = _linkGenerator.GetPathByAction(HttpContext, nameof(UserUpdate), controllerName, new { version = version.ToString() }),
                 Method = HttpMethod.Put.ToString(),
                 Description = "Update User"
             });

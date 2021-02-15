@@ -23,6 +23,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
@@ -95,28 +96,47 @@ namespace DotNetConf.Api
 
             #region ApiVersioning & Swagger
             services.AddApiVersioning(
-                            options =>
-                            {
-                                // response içerisinde api version bilgisini de döner
-                                options.ReportApiVersions = true;
-                                options.DefaultApiVersion = new ApiVersion(1, 0);
-                                //header version örneği
-                                //options.ApiVersionReader = new HeaderApiVersionReader("api-version");
-                            });
+                options =>
+                {
+                    options.ReportApiVersions = true;
+                    options.DefaultApiVersion = new ApiVersion(1, 0);
+                    //header version örneği
+                    //options.ApiVersionReader = new HeaderApiVersionReader("api-version");
+                });
             services.AddVersionedApiExplorer(
-            options =>
-            {
-                //version formatýný belirtmektedir v'den sonra major.minör.status formatýdýr
-                options.GroupNameFormat = "'v'VVV";
-                //version'un url içerisinde olacaðýný belirtir 
-                options.SubstituteApiVersionInUrl = true;
-            });
+                options =>
+                {
+                    options.GroupNameFormat = "'v'VVV";
+                    options.SubstituteApiVersionInUrl = true;
+                });
             services.AddSwaggerGen(
                 options =>
                 {
-                    // methodlar için default value filtresi
                     options.OperationFilter<SwaggerDefaultValues>();
                     options.EnableAnnotations();
+                    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                    {
+                        Name = "Authorization",
+                        In = ParameterLocation.Header,
+                        Scheme = "Bearer",
+                        Type = SecuritySchemeType.ApiKey,
+                        BearerFormat = "JWT"
+                    });
+
+                    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            new string[] {}
+                        }
+                    });
                 });
 
             services.AddSingleton<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
