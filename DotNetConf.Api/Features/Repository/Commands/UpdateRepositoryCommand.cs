@@ -2,25 +2,30 @@
 using DotNetConf.Api.Entities;
 using DotNetConf.Api.Enums;
 using DotNetConf.Api.Features.Repository.Models;
-using DotNetConf.Api.Features.User.Models;
 using DotNetConf.Api.Features.User.Queries;
 using DotNetConf.Api.Infrastructures.Database;
 using DotNetConf.Api.Infrastructures.Mapper;
-using DotNetConf.Api.Models.Exceptions;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace DotNetConf.Api.Features.Repository.Commands
 {
-    public class UpdateRepositoryCommand : RepositoryModel, IRequest<(RepositoryModel, bool)>, IMapping
+    public class UpdateRepositoryCommand : IRequest<(RepositoryModel, bool)>, IMapping
     {
+        public long Id { get; set; }
+        public long UserId { get; set; }
         public string Username { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public bool IsPrivate { get; set; }
+        public bool IsFork { get; set; }
+
         public void CreateMappings(IProfileExpression profileExpression)
         {
             profileExpression.CreateMap<UpdateRepositoryCommand, CreateRepositoryCommand>();
+            profileExpression.CreateMap<UpdateRepositoryCommand, RepositoryEntity>();
+            profileExpression.CreateMap<RepositoryEntity, UpdateRepositoryCommand>();
         }
     }
 
@@ -61,7 +66,7 @@ namespace DotNetConf.Api.Features.Repository.Commands
             }
             else
             {
-                currentEntity = _mapper.Map<RepositoryModel, RepositoryEntity>(request, currentEntity);
+                currentEntity = _mapper.Map(request, currentEntity);
                 currentEntity = _service.Update(currentEntity);
                 await _service.SaveChangesAsync();
                 repositoryModel = _mapper.Map<RepositoryEntity, RepositoryModel>(currentEntity);

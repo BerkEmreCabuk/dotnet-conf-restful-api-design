@@ -10,25 +10,33 @@ namespace DotNetConf.Api.Models.Exceptions
     {
         public BadRequestException()
         {
-            ResponseModel.Messages.Add("Error Occured");
-            this.StatusCode = StatusCodes.Status400BadRequest;
-            this.Description = "Status for error occurred";
+            ProblemDetailsModel.Title = "Error Occured";
+            ProblemDetailsModel.Detail = "Status for error occurred";
+            ProblemDetailsModel.Status = StatusCodes.Status400BadRequest;
         }
         public BadRequestException(string message) : base(message)
         {
-            this.StatusCode = StatusCodes.Status400BadRequest;
+            ProblemDetailsModel.Status = StatusCodes.Status400BadRequest;
         }
 
-        public BadRequestException(List<string> messages)
+        public BadRequestException(List<string> messages) : base(messages)
         {
-            ResponseModel.Messages = messages;
-            this.StatusCode = StatusCodes.Status400BadRequest;
+            ProblemDetailsModel.Status = StatusCodes.Status400BadRequest;
         }
 
-        public BadRequestException(Exception innerException, string message, params object[] args)
-            : base(string.Format(message, args), innerException)
+        public BadRequestException(string title, List<string> messages) : base(title, messages)
         {
-            this.StatusCode = StatusCodes.Status400BadRequest;
+            ProblemDetailsModel.Status = StatusCodes.Status400BadRequest;
+        }
+
+        public BadRequestException(string message, string title) : base(message, title)
+        {
+            ProblemDetailsModel.Status = StatusCodes.Status400BadRequest;
+        }
+
+        public BadRequestException(string message, string title, IDictionary<string, object> extensions) : base(message, title, extensions)
+        {
+            ProblemDetailsModel.Status = StatusCodes.Status400BadRequest;
         }
     }
 }

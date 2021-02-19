@@ -53,7 +53,7 @@ namespace DotNetConf.Api.Infrastructures.Swaggers
                 }
                 if (baseException != null)
                 {
-                    response.Value.Description = baseException.Description;
+                    response.Value.Description = baseException.ProblemDetailsModel.Detail;
                 }
             }
 

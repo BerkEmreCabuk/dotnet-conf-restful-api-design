@@ -10,25 +10,34 @@ namespace DotNetConf.Api.Models.Exceptions
     {
         public InternalServerError()
         {
-            ResponseModel.Messages.Add("Unexpected Error Occured");
-            this.StatusCode = StatusCodes.Status500InternalServerError;
-            this.Description = "Status for internal server error";
+            ProblemDetailsModel.Title = "Unexpected Error Occured";
+            ProblemDetailsModel.Detail = "Status for internal server error";
+            ProblemDetailsModel.Status = StatusCodes.Status500InternalServerError;
         }
+
         public InternalServerError(string message) : base(message)
         {
-            this.StatusCode = StatusCodes.Status500InternalServerError;
+            ProblemDetailsModel.Status = StatusCodes.Status500InternalServerError;
         }
 
-        public InternalServerError(List<string> messages)
+        public InternalServerError(List<string> messages) : base(messages)
         {
-            ResponseModel.Messages = messages;
-            this.StatusCode = StatusCodes.Status500InternalServerError;
+            ProblemDetailsModel.Status = StatusCodes.Status500InternalServerError;
         }
 
-        public InternalServerError(Exception innerException, string message, params object[] args)
-            : base(string.Format(message, args), innerException)
+        public InternalServerError(string title, List<string> messages) : base(title, messages)
         {
-            this.StatusCode = StatusCodes.Status500InternalServerError;
+            ProblemDetailsModel.Status = StatusCodes.Status500InternalServerError;
+        }
+
+        public InternalServerError(string message, string title) : base(message, title)
+        {
+            ProblemDetailsModel.Status = StatusCodes.Status500InternalServerError;
+        }
+
+        public InternalServerError(string message, string title, IDictionary<string, object> extensions) : base(message, title, extensions)
+        {
+            ProblemDetailsModel.Status = StatusCodes.Status500InternalServerError;
         }
     }
 }

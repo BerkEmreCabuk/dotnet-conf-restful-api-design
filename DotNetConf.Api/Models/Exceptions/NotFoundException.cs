@@ -8,25 +8,34 @@ namespace DotNetConf.Api.Models.Exceptions
     {
         public NotFoundException()
         {
-            ResponseModel.Messages.Add("Not Found.");
-            this.StatusCode = StatusCodes.Status404NotFound;
-            this.Description = "Status for not found data or endpoint";
+            ProblemDetailsModel.Title = "Not Found";
+            ProblemDetailsModel.Detail = "Status for not found data or endpoint";
+            ProblemDetailsModel.Status = StatusCodes.Status404NotFound;
         }
+
         public NotFoundException(string message) : base(message)
         {
-            this.StatusCode = StatusCodes.Status404NotFound;
+            ProblemDetailsModel.Status = StatusCodes.Status404NotFound;
         }
 
-        public NotFoundException(List<string> messages)
+        public NotFoundException(List<string> messages) : base(messages)
         {
-            ResponseModel.Messages = messages;
-            this.StatusCode = StatusCodes.Status404NotFound;
+            ProblemDetailsModel.Status = StatusCodes.Status404NotFound;
         }
 
-        public NotFoundException(Exception innerException, string message, params object[] args)
-            : base(string.Format(message, args), innerException)
+        public NotFoundException(string title, List<string> messages) : base(title, messages)
         {
-            this.StatusCode = StatusCodes.Status404NotFound;
+            ProblemDetailsModel.Status = StatusCodes.Status404NotFound;
+        }
+
+        public NotFoundException(string message, string title) : base(message, title)
+        {
+            ProblemDetailsModel.Status = StatusCodes.Status404NotFound;
+        }
+
+        public NotFoundException(string message, string title, IDictionary<string, object> extensions) : base(message, title, extensions)
+        {
+            ProblemDetailsModel.Status = StatusCodes.Status404NotFound;
         }
     }
 }

@@ -24,6 +24,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
@@ -158,12 +160,12 @@ namespace DotNetConf.Api
 
             #region Fluent Validation
             services.AddControllers()
-                .AddFluentValidation(validationConfig => validationConfig.RegisterValidatorsFromAssembly(Assembly.GetAssembly(typeof(CreateUserValidator))))
                 .AddNewtonsoftJson(setupAction => new Newtonsoft.Json.JsonSerializerSettings
                 {
-                    NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
-                    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-                });
+                    NullValueHandling = NullValueHandling.Ignore,
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                })
+                .AddFluentValidation(validationConfig => validationConfig.RegisterValidatorsFromAssembly(Assembly.GetAssembly(typeof(CreateUserValidator))));
 
             services.Configure<ApiBehaviorOptions>(options =>
             {
@@ -174,7 +176,7 @@ namespace DotNetConf.Api
                     {
                         messages.AddRange(errors.Select(x => x.ErrorMessage).ToList());
                     }
-                    throw new UnprocessableException(messages);
+                    throw new UnprocessableException("Request Model Invalid or Missing", messages);
                 };
             });
             #endregion

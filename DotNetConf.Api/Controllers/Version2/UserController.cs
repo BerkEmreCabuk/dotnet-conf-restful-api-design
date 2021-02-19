@@ -26,10 +26,10 @@ namespace DotNetConf.Api.Controllers.Version2
 
         [HttpGet("{id:long}")]
         [ProducesResponseType(typeof(BaseResponseModel<UserModel>), 200)]
-        [ProducesResponseType(typeof(BaseResponseModel), 400)]
-        [ProducesResponseType(typeof(BaseResponseModel), 404)]
-        [ProducesResponseType(typeof(BaseResponseModel), 401)]
-        [ProducesResponseType(typeof(BaseResponseModel), 422)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 404)]
+        [ProducesResponseType(typeof(ProblemDetails), 401)]
+        [ProducesResponseType(typeof(ProblemDetails), 422)]
         [SwaggerOperation(
             Summary = "Get User",
             Description = "Get User's information by id description",
@@ -41,10 +41,10 @@ namespace DotNetConf.Api.Controllers.Version2
         }
 
         [HttpDelete("{id:long}")]
-        [ProducesResponseType(typeof(BaseResponseModel), 202)]
-        [ProducesResponseType(typeof(BaseResponseModel), 400)]
-        [ProducesResponseType(typeof(BaseResponseModel), 401)]
-        [ProducesResponseType(typeof(BaseResponseModel), 404)]
+        [ProducesResponseType(typeof(BaseResponseModel), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 401)]
+        [ProducesResponseType(typeof(ProblemDetails), 404)]
         [SwaggerOperation(
             Summary = "Delete User",
             Description = "Delete User by id description",
@@ -52,7 +52,7 @@ namespace DotNetConf.Api.Controllers.Version2
         public async Task<ActionResult<UserModel>> DeleteById(long id)
         {
             await _mediator.Send(new DeleteUserCommand(id));
-            return Accepted(new BaseResponseModel("User deleted successfully"));
+            return Ok(new BaseResponseModel("User deleted successfully"));
         }
     }
 }

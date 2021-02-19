@@ -1,36 +1,68 @@
 ﻿using DotNetConf.Api.Models.BaseModels;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace DotNetConf.Api.Models.Exceptions
 {
-    public class BaseException : Exception
+    public abstract class BaseException : Exception
     {
-        public BaseResponseModel ResponseModel = new BaseResponseModel();
-        public int StatusCode { get; set; }
-        public string Description { get; set; }
+        public ProblemDetails ProblemDetailsModel = new ProblemDetails();
         public BaseException() : base()
         {
-            this.StatusCode = StatusCodes.Status500InternalServerError;
+            ProblemDetailsModel.Status = StatusCodes.Status500InternalServerError;
+            ProblemDetailsModel.Extensions.Add("DocumentUrl", "http://localhost:5000/swagger/index.html");
         }
-        public BaseException(string message) : base(message)
+        public BaseException(string message)
         {
-            ResponseModel.Messages.Add(message);
-            this.StatusCode = StatusCodes.Status500InternalServerError;
+            ProblemDetailsModel.Status = StatusCodes.Status500InternalServerError;
+            ProblemDetailsModel.Title = message;
+            ProblemDetailsModel.Detail = message;
+            ProblemDetailsModel.Extensions.Add("DocumentUrl", "http://localhost:5000/swagger/index.html");
         }
 
         public BaseException(List<string> messages)
         {
-            ResponseModel.Messages.AddRange(messages);
-            this.StatusCode = StatusCodes.Status500InternalServerError;
+            ProblemDetailsModel.Status = StatusCodes.Status500InternalServerError;
+            ProblemDetailsModel.Detail = string.Join("/ ", messages);
+            //ProblemDetailsModel.Extensions.Add("messages", messages);
+            ProblemDetailsModel.Extensions.Add("DocumentUrl", "http://localhost:5000/swagger/index.html");
         }
 
-        public BaseException(string message, Exception innerException, params object[] args)
-            : base(string.Format(message, args), innerException)
+        public BaseException(string title, List<string> messages)
         {
-            ResponseModel.Messages.Add(message);
-            this.StatusCode = StatusCodes.Status500InternalServerError;
+            ProblemDetailsModel.Status = StatusCodes.Status500InternalServerError;
+            ProblemDetailsModel.Title = title;
+            ProblemDetailsModel.Detail = string.Join("/ ", messages);
+            //ProblemDetailsModel.Detail = JsonConvert.SerializeObject(messages, Formatting.Indented);
+            //ProblemDetailsModel.Extensions.Add("messages", messages);
+            ProblemDetailsModel.Extensions.Add("DocumentUrl", "http://localhost:5000/swagger/index.html");
+        }
+
+        public BaseException(string message, string title)
+        {
+            ProblemDetailsModel.Status = StatusCodes.Status500InternalServerError;
+            ProblemDetailsModel.Title = !string.IsNullOrEmpty(title) ? title : message;
+            ProblemDetailsModel.Detail = message;
+            ProblemDetailsModel.Extensions.Add("DocumentUrl", "http://localhost:5000/swagger/index.html");
+        }
+
+        public BaseException(string message, string title, IDictionary<string, object> extensions)
+        {
+            ProblemDetailsModel.Status = StatusCodes.Status500InternalServerError;
+            ProblemDetailsModel.Title = !string.IsNullOrEmpty(title) ? title : message;
+            ProblemDetailsModel.Detail = message;
+            if (extensions != null)
+            {
+                foreach (var extension in extensions)
+                {
+                    ProblemDetailsModel.Extensions.Add(extension.Key, extension.Value);
+                }
+            }
+            ProblemDetailsModel.Extensions.Add("DocumentUrl", "http://localhost:5000/swagger/index.html");
         }
     }
 }

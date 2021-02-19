@@ -33,81 +33,56 @@ namespace DotNetConf.Api.Controllers
 
         [HttpGet("users/{username}/repos/{name}", Name = nameof(GetByName))]
         [ProducesResponseType(typeof(BaseResponseModel<RepositoryModel>), 200)]
-        [ProducesResponseType(typeof(BaseResponseModel), 400)]
-        [ProducesResponseType(typeof(BaseResponseModel), 404)]
-        [ProducesResponseType(typeof(BaseResponseModel), 401)]
-        [ProducesResponseType(typeof(BaseResponseModel), 422)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 404)]
+        [ProducesResponseType(typeof(ProblemDetails), 401)]
+        [ProducesResponseType(typeof(ProblemDetails), 422)]
         [SwaggerOperation(
             Summary = "Get Repository's information",
             Description = "Get Repository's information by username and name",
             Tags = new string[] { "Repository Get" })]
         public async Task<ActionResult<RepositoryModel>> GetByName(string username, string name)
         {
-            return Ok(new BaseResponseModel<RepositoryModel>(await _mediator.Send(new GetRepositoryQuery(username, name))));
-        }
-
-        [HttpGet("users/{userId:long}/repos/{id:long}", Name = nameof(GetById))]
-        [ProducesResponseType(typeof(BaseResponseModel), 400)]
-        [ProducesResponseType(typeof(BaseResponseModel), 404)]
-        [ProducesResponseType(typeof(BaseResponseModel), 401)]
-        [ProducesResponseType(typeof(BaseResponseModel), 422)]
-        [SwaggerOperation(
-            Summary = "Get Repository's information",
-            Description = "Get Repository's information by userId and id",
-            Tags = new string[] { "Repository Get" })]
-        public async Task<ActionResult<RepositoryModel>> GetById(long userId, long id)
-        {
-            return Ok(new BaseResponseModel<RepositoryModel>(await _mediator.Send(new GetRepositoryQuery(userId, id))));
+            var response = new BaseResponseModel<RepositoryModel>(await _mediator.Send(new GetRepositoryQuery(username, name)));
+            return Ok(CreateLinksForRepository(response));
         }
 
         [HttpGet("users/{username}/repos", Name = nameof(GetListByName))]
         [ProducesResponseType(typeof(BaseResponseModel<List<RepositoryModel>>), 200)]
-        [ProducesResponseType(typeof(BaseResponseModel), 400)]
-        [ProducesResponseType(typeof(BaseResponseModel), 401)]
-        [ProducesResponseType(typeof(BaseResponseModel), 422)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 401)]
+        [ProducesResponseType(typeof(ProblemDetails), 422)]
         [SwaggerOperation(
             Summary = "Get Repository list",
             Description = "Get Repository list by username",
             Tags = new string[] { "Repository Get" })]
         public async Task<ActionResult<RepositoryModel>> GetListByName(string username)
         {
-            return Ok(new BaseResponseModel<List<RepositoryModel>>(await _mediator.Send(new GetRepositoriesQuery(username))));
-        }
-
-        [HttpGet("users/{userId:long}/repos", Name = nameof(GetListById))]
-        [ProducesResponseType(typeof(BaseResponseModel<List<RepositoryModel>>), 200)]
-        [ProducesResponseType(typeof(BaseResponseModel), 400)]
-        [ProducesResponseType(typeof(BaseResponseModel), 401)]
-        [ProducesResponseType(typeof(BaseResponseModel), 422)]
-        [SwaggerOperation(
-            Summary = "Get Repository list",
-            Description = "Get Repository list by userId",
-            Tags = new string[] { "Repository Get" })]
-        public async Task<ActionResult<RepositoryModel>> GetListById(long userId)
-        {
-            return Ok(new BaseResponseModel<List<RepositoryModel>>(await _mediator.Send(new GetRepositoriesQuery(userId))));
+            var response = new BaseResponseModel<List<RepositoryModel>>(await _mediator.Send(new GetRepositoriesQuery(username)));
+            return Ok(CreateLinksForRepository(response));
         }
 
         [HttpPost("repos", Name = nameof(Create))]
         [ProducesResponseType(typeof(BaseResponseModel<RepositoryModel>), 201)]
-        [ProducesResponseType(typeof(BaseResponseModel), 400)]
-        [ProducesResponseType(typeof(BaseResponseModel), 401)]
-        [ProducesResponseType(typeof(BaseResponseModel), 422)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 401)]
+        [ProducesResponseType(typeof(ProblemDetails), 422)]
         [SwaggerOperation(
             Summary = "Create Repository",
             Description = "Create Repository description",
             Tags = new string[] { "Repository Post" })]
         public async Task<ActionResult<RepositoryModel>> Create([FromBody] CreateRepositoryCommand model)
         {
-            return Created(string.Empty, await _mediator.Send(model));
+            var response = new BaseResponseModel<RepositoryModel>(await _mediator.Send(model));
+            return Created(string.Empty, CreateLinksForRepository(response));
         }
 
         [HttpPut("repos", Name = nameof(Update))]
         [ProducesResponseType(typeof(BaseResponseModel<RepositoryModel>), 201)]
         [ProducesResponseType(typeof(BaseResponseModel<RepositoryModel>), 200)]
-        [ProducesResponseType(typeof(BaseResponseModel), 400)]
-        [ProducesResponseType(typeof(BaseResponseModel), 401)]
-        [ProducesResponseType(typeof(BaseResponseModel), 422)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 401)]
+        [ProducesResponseType(typeof(ProblemDetails), 422)]
         [SwaggerOperation(
             Summary = "Update Repository",
             Description = "Update Repository description",
@@ -116,15 +91,33 @@ namespace DotNetConf.Api.Controllers
         {
             var (repositoryModel, isCreated) = await _mediator.Send(model);
             return isCreated
-                ? Created(string.Empty, new BaseResponseModel<RepositoryModel>(repositoryModel))
-                : Ok(new BaseResponseModel<RepositoryModel>(repositoryModel));
+                ? Created(string.Empty, CreateLinksForRepository(new BaseResponseModel<RepositoryModel>(repositoryModel)))
+                : Ok(CreateLinksForRepository(new BaseResponseModel<RepositoryModel>(repositoryModel)));
+        }
+
+        [HttpPatch("users/{username}/repos/{name}/visibility", Name = nameof(ChangeVisibility))]
+        [ProducesResponseType(typeof(BaseResponseModel<RepositoryModel>), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 404)]
+        [ProducesResponseType(typeof(ProblemDetails), 401)]
+        [ProducesResponseType(typeof(ProblemDetails), 422)]
+        [SwaggerOperation(
+            Summary = "Change Repository's visibility",
+            Description = "Change Repository's visibility description",
+            Tags = new string[] { "Repository Patch" })]
+        public async Task<ActionResult<RepositoryModel>> ChangeVisibility(string username, string name, [FromBody] ChangeVisibilityRepositoryCommand model)
+        {
+            model.Username = username;
+            model.Name = name;
+            var response = new BaseResponseModel<RepositoryModel>(await _mediator.Send(model));
+            return Ok(CreateLinksForRepository(response));
         }
 
         [HttpDelete("users/{username}/repos/{name}", Name = nameof(DeleteByName))]
-        [ProducesResponseType(typeof(BaseResponseModel), 202)]
-        [ProducesResponseType(typeof(BaseResponseModel), 400)]
-        [ProducesResponseType(typeof(BaseResponseModel), 401)]
-        [ProducesResponseType(typeof(BaseResponseModel), 404)]
+        [ProducesResponseType(typeof(BaseResponseModel), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 401)]
+        [ProducesResponseType(typeof(ProblemDetails), 404)]
         [SwaggerOperation(
             Summary = "Delete Repository",
             Description = "Delete Repository by username and name",
@@ -132,22 +125,7 @@ namespace DotNetConf.Api.Controllers
         public async Task<ActionResult<UserModel>> DeleteByName(string username, string name)
         {
             await _mediator.Send(new DeleteRepositoryCommand(username, name));
-            return Accepted(new BaseResponseModel("Repository deleted successfully"));
-        }
-
-        [HttpDelete("users/{userId:long}/repos/{id:long}", Name = nameof(DeleteById))]
-        [ProducesResponseType(typeof(BaseResponseModel), 202)]
-        [ProducesResponseType(typeof(BaseResponseModel), 400)]
-        [ProducesResponseType(typeof(BaseResponseModel), 401)]
-        [ProducesResponseType(typeof(BaseResponseModel), 404)]
-        [SwaggerOperation(
-            Summary = "Delete Repository",
-            Description = "Delete Repository by userId and id",
-            Tags = new string[] { "Repository Delete" })]
-        public async Task<ActionResult<UserModel>> DeleteById(long userId, long id)
-        {
-            await _mediator.Send(new DeleteRepositoryCommand(userId, id));
-            return Accepted(new BaseResponseModel("Repository deleted successfully"));
+            return Ok(new BaseResponseModel("Repository deleted successfully"));
         }
 
         private BaseResponseModel CreateLinksForRepository(BaseResponseModel model)
@@ -156,16 +134,6 @@ namespace DotNetConf.Api.Controllers
             if (!HttpContext.Request.RouteValues.TryGetValue("version", out var version))
                 version = ApiVersion.Default;
 
-            if (!string.IsNullOrEmpty(_linkGenerator.GetPathByAction(HttpContext, nameof(GetById), controllerName, new { version = version.ToString() })))
-            {
-                model.Links.Add(
-                new LinkModel
-                {
-                    Href = _linkGenerator.GetPathByAction(HttpContext, nameof(GetById), controllerName, new { version = version.ToString() }),
-                    Method = HttpMethod.Get.ToString(),
-                    Description = "Get Repository's information"
-                });
-            }
             if (!string.IsNullOrEmpty(_linkGenerator.GetPathByAction(HttpContext, nameof(GetByName), controllerName, new { version = version.ToString() })))
             {
                 model.Links.Add(
@@ -180,13 +148,6 @@ namespace DotNetConf.Api.Controllers
                 new LinkModel
                 {
                     Href = _linkGenerator.GetPathByAction(HttpContext, nameof(GetListByName), controllerName, new { version = version.ToString() }),
-                    Method = HttpMethod.Get.ToString(),
-                    Description = "Get Repository list"
-                });
-            model.Links.Add(
-                new LinkModel
-                {
-                    Href = _linkGenerator.GetPathByAction(HttpContext, nameof(GetListById), controllerName, new { version = version.ToString() }),
                     Method = HttpMethod.Get.ToString(),
                     Description = "Get Repository list"
                 });

@@ -10,25 +10,34 @@ namespace DotNetConf.Api.Models.Exceptions
     {
         public UnprocessableException()
         {
-            ResponseModel.Messages.Add("Request Model Invalid or Missing");
-            this.StatusCode = StatusCodes.Status422UnprocessableEntity;
-            this.Description = "Status for request model invalid or missing";
+            ProblemDetailsModel.Title = "Request Model Invalid or Missing";
+            ProblemDetailsModel.Detail = "Status for request model invalid or missing";
+            ProblemDetailsModel.Status = StatusCodes.Status422UnprocessableEntity;
         }
+
         public UnprocessableException(string message) : base(message)
         {
-            this.StatusCode = StatusCodes.Status422UnprocessableEntity;
+            ProblemDetailsModel.Status = StatusCodes.Status422UnprocessableEntity;
         }
 
-        public UnprocessableException(List<string> messages)
+        public UnprocessableException(List<string> messages) : base(messages)
         {
-            ResponseModel.Messages = messages;
-            this.StatusCode = StatusCodes.Status422UnprocessableEntity;
+            ProblemDetailsModel.Status = StatusCodes.Status422UnprocessableEntity;
         }
 
-        public UnprocessableException(Exception innerException, string message, params object[] args)
-            : base(string.Format(message, args), innerException)
+        public UnprocessableException(string title, List<string> messages) : base(title, messages)
         {
-            this.StatusCode = StatusCodes.Status422UnprocessableEntity;
+            ProblemDetailsModel.Status = StatusCodes.Status422UnprocessableEntity;
+        }
+
+        public UnprocessableException(string message, string title) : base(message, title)
+        {
+            ProblemDetailsModel.Status = StatusCodes.Status422UnprocessableEntity;
+        }
+
+        public UnprocessableException(string message, string title, IDictionary<string, object> extensions) : base(message, title, extensions)
+        {
+            ProblemDetailsModel.Status = StatusCodes.Status422UnprocessableEntity;
         }
     }
 }

@@ -10,25 +10,34 @@ namespace DotNetConf.Api.Models.Exceptions
     {
         public UnauthorizedException()
         {
-            ResponseModel.Messages.Add("token expire or unauthantication");
-            this.StatusCode = StatusCodes.Status401Unauthorized;
-            this.Description = "Status for token expire or unauthantication";
+            ProblemDetailsModel.Title = "Token expire or unauthantication";
+            ProblemDetailsModel.Detail = "Status for token expire or unauthantication";
+            ProblemDetailsModel.Status = StatusCodes.Status401Unauthorized;
         }
+
         public UnauthorizedException(string message) : base(message)
         {
-            this.StatusCode = StatusCodes.Status401Unauthorized;
+            ProblemDetailsModel.Status = StatusCodes.Status401Unauthorized;
         }
 
-        public UnauthorizedException(List<string> messages)
+        public UnauthorizedException(List<string> messages) : base(messages)
         {
-            ResponseModel.Messages = messages;
-            this.StatusCode = StatusCodes.Status401Unauthorized;
+            ProblemDetailsModel.Status = StatusCodes.Status401Unauthorized;
         }
 
-        public UnauthorizedException(Exception innerException, string message, params object[] args)
-            : base(string.Format(message, args), innerException)
+        public UnauthorizedException(string title, List<string> messages) : base(title, messages)
         {
-            this.StatusCode = StatusCodes.Status401Unauthorized;
+            ProblemDetailsModel.Status = StatusCodes.Status401Unauthorized;
+        }
+
+        public UnauthorizedException(string message, string title) : base(message, title)
+        {
+            ProblemDetailsModel.Status = StatusCodes.Status401Unauthorized;
+        }
+
+        public UnauthorizedException(string message, string title, IDictionary<string, object> extensions) : base(message, title, extensions)
+        {
+            ProblemDetailsModel.Status = StatusCodes.Status401Unauthorized;
         }
     }
 }

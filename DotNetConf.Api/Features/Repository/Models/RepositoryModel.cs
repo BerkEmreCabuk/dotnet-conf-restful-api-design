@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DotNetConf.Api.Entities;
+using DotNetConf.Api.Features.User.Models;
 using DotNetConf.Api.Infrastructures.Mapper;
 using System.Collections.Generic;
 
@@ -13,7 +14,7 @@ namespace DotNetConf.Api.Features.Repository.Models
         public string Description { get; set; }
         public bool IsPrivate { get; set; }
         public bool IsFork { get; set; }
-        public UserEntity User { get; set; }
+        public UserModel User { get; set; }
 
         public void CreateMappings(IProfileExpression profileExpression)
         {

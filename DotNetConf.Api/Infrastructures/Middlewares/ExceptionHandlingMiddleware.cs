@@ -28,10 +28,12 @@ namespace DotNetConf.Api.Infrastructures.Middlewares
             }
             catch (Exception exception)
             {
-                context.Response.ContentType = "application/json";
+                context.Response.ContentType = "application/problem+json";
                 var baseException = exception is BaseException ? (BaseException)exception : new InternalServerError();
-                context.Response.StatusCode = baseException.StatusCode;
-                await context.Response.WriteAsync(JsonSerializer.Serialize(baseException.ResponseModel));
+                baseException.ProblemDetailsModel.Instance = context.Request.Path;
+                baseException.ProblemDetailsModel.Type = context.Request.Path;
+                context.Response.StatusCode = baseException.ProblemDetailsModel.Status.Value;
+                await context.Response.WriteAsync(JsonSerializer.Serialize(baseException.ProblemDetailsModel));
             }
         }
     }

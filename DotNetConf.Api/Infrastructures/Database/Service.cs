@@ -13,9 +13,10 @@ namespace DotNetConf.Api.Infrastructures.Database
     {
         int SaveChanges();
         Task<int> SaveChangesAsync();
-        DbSet<T> Query<T>() where T : BaseEntity;
-        Task<List<T>> GetListAsync<T>(Expression<Func<T, bool>> predicate, bool isTracking = false) where T : BaseEntity;
-        Task<T> FindAsync<T>(Expression<Func<T, bool>> predicate, bool isTracking = false) where T : BaseEntity;
+        IQueryable<T> Query<T>() where T : BaseEntity;
+        Task<List<T>> GetListAsync<T>(Expression<Func<T, bool>> predicate, bool isTracking = false, params Expression<Func<T, object>>[] includeEntities) where T : BaseEntity;
+        Task<T> FindAsync<T>(Expression<Func<T, bool>> predicate, bool isTracking = false, params Expression<Func<T, object>>[] includeEntities) where T : BaseEntity;
+        Task<T> FindAsync<T>(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeEntities) where T : BaseEntity;
         Task<bool> ExistAsync<T>(Expression<Func<T, bool>> predicate) where T : BaseEntity;
         Task<List<T>> GetListAsync<T>(bool isTracking = false) where T : BaseEntity;
         Task<T> GetByIdAsync<T>(long id, bool isTracking = false) where T : BaseEntity;
@@ -32,35 +33,53 @@ namespace DotNetConf.Api.Infrastructures.Database
             _context = context;
         }
 
-        public virtual DbSet<T> Query<T>() where T : BaseEntity
+        public virtual IQueryable<T> Query<T>() where T : BaseEntity
         {
-            return _context.Set<T>();
+            return _context.Set<T>().AsQueryable();
         }
 
-        public virtual Task<List<T>> GetListAsync<T>(Expression<Func<T, bool>> predicate, bool isTracking = false) where T : BaseEntity
+        public virtual Task<List<T>> GetListAsync<T>(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeEntities) where T : BaseEntity
         {
-            var result = _context.Set<T>();
+            return GetListAsync<T>(predicate, false, includeEntities);
+        }
+
+        public virtual Task<List<T>> GetListAsync<T>(Expression<Func<T, bool>> predicate, bool isTracking = false, params Expression<Func<T, object>>[] includeEntities) where T : BaseEntity
+        {
+            var result = Query<T>();
+            foreach (var include in includeEntities)
+            {
+                result = result.Include(include);
+            }
             return isTracking
                 ? result.Where(predicate).ToListAsync<T>()
                 : result.AsNoTracking().Where(predicate).ToListAsync<T>();
         }
-        public virtual Task<T> FindAsync<T>(Expression<Func<T, bool>> predicate, bool isTracking = false) where T : BaseEntity
-        {
-            var result = _context.Set<T>();
 
+        public virtual Task<T> FindAsync<T>(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeEntities) where T : BaseEntity
+        {
+            return FindAsync<T>(predicate, false, includeEntities);
+        }
+
+        public virtual Task<T> FindAsync<T>(Expression<Func<T, bool>> predicate, bool isTracking = false, params Expression<Func<T, object>>[] includeEntities) where T : BaseEntity
+        {
+            var result = Query<T>();
+            foreach (var include in includeEntities)
+            {
+                result = result.Include(include);
+            }
             return isTracking
-                ? result.FirstOrDefaultAsync<T>(predicate)
-                : result.AsNoTracking().FirstOrDefaultAsync<T>(predicate);
+                ? result.FirstOrDefaultAsync(predicate)
+                : result.AsNoTracking().FirstOrDefaultAsync(predicate);
         }
 
         public virtual Task<bool> ExistAsync<T>(Expression<Func<T, bool>> predicate) where T : BaseEntity
         {
-            return _context.Set<T>().AnyAsync<T>(predicate);
+            return Query<T>().AnyAsync<T>(predicate);
         }
 
         public virtual Task<T> GetByIdAsync<T>(long id, bool isTracking = false) where T : BaseEntity
         {
-            var result = _context.Set<T>();
+            var result = Query<T>();
             return isTracking
                 ? result.FirstOrDefaultAsync(x => x.Id == id && x.Status == RecordStatuses.ACTIVE)
                 : result.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id && x.Status == RecordStatuses.ACTIVE);
@@ -68,7 +87,7 @@ namespace DotNetConf.Api.Infrastructures.Database
 
         public virtual Task<List<T>> GetListAsync<T>(bool isTracking = false) where T : BaseEntity
         {
-            var result = _context.Set<T>();
+            var result = Query<T>();
             return isTracking
                 ? result.Where(x => x.Status == RecordStatuses.ACTIVE).ToListAsync()
                 : result.AsNoTracking().Where(x => x.Status == RecordStatuses.ACTIVE).ToListAsync();

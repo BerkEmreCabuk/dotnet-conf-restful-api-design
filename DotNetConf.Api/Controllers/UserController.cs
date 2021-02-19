@@ -4,6 +4,7 @@ using DotNetConf.Api.Features.User.Models;
 using DotNetConf.Api.Features.User.Queries;
 using DotNetConf.Api.Models.BaseModels;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Swashbuckle.AspNetCore.Annotations;
@@ -27,12 +28,12 @@ namespace DotNetConf.Api.Controllers
             _linkGenerator = linkGenerator;
         }
 
-        [HttpGet("{username}", Name = nameof(UserGetByUsername))]
+        [HttpGet("{username}", Name = nameof(UserGetByUsername), Order = 0)]
         [ProducesResponseType(typeof(BaseResponseModel<UserModel>), 200)]
-        [ProducesResponseType(typeof(BaseResponseModel), 400)]
-        [ProducesResponseType(typeof(BaseResponseModel), 404)]
-        [ProducesResponseType(typeof(BaseResponseModel), 401)]
-        [ProducesResponseType(typeof(BaseResponseModel), 422)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 404)]
+        [ProducesResponseType(typeof(ProblemDetails), 401)]
+        [ProducesResponseType(typeof(ProblemDetails), 422)]
         [SwaggerOperation(
             Summary = "Get User's information",
             Description = "Get User's information description",
@@ -43,11 +44,11 @@ namespace DotNetConf.Api.Controllers
             return Ok(CreateLinksForUser(response));
         }
 
-        [HttpGet(Name = nameof(UserGetList))]
+        [HttpGet(Name = nameof(UserGetList), Order = 1)]
         [ProducesResponseType(typeof(BaseResponseModel<List<UserModel>>), 200)]
-        [ProducesResponseType(typeof(BaseResponseModel), 400)]
-        [ProducesResponseType(typeof(BaseResponseModel), 404)]
-        [ProducesResponseType(typeof(BaseResponseModel), 401)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 404)]
+        [ProducesResponseType(typeof(ProblemDetails), 401)]
         [SwaggerOperation(
             Summary = "Get User List",
             Description = "Get User list description",
@@ -57,11 +58,11 @@ namespace DotNetConf.Api.Controllers
             return Ok(new BaseResponseModel<List<UserModel>>(await _mediator.Send(new GetUsersQuery())));
         }
 
-        [HttpPost(Name = nameof(UserCreate))]
+        [HttpPost(Name = nameof(UserCreate), Order = 2)]
         [ProducesResponseType(typeof(BaseResponseModel<UserModel>), 201)]
-        [ProducesResponseType(typeof(BaseResponseModel), 400)]
-        [ProducesResponseType(typeof(BaseResponseModel), 401)]
-        [ProducesResponseType(typeof(BaseResponseModel), 422)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 401)]
+        [ProducesResponseType(typeof(ProblemDetails), 422)]
         [SwaggerOperation(
             Summary = "Create User",
             Description = "Create User description",
@@ -72,12 +73,12 @@ namespace DotNetConf.Api.Controllers
             return Created(string.Empty, CreateLinksForUser(response));
         }
 
-        [HttpPut(Name = nameof(UserUpdate))]
+        [HttpPut(Name = nameof(UserUpdate), Order = 3)]
         [ProducesResponseType(typeof(BaseResponseModel<UserModel>), 201)]
         [ProducesResponseType(typeof(BaseResponseModel<UserModel>), 200)]
-        [ProducesResponseType(typeof(BaseResponseModel), 400)]
-        [ProducesResponseType(typeof(BaseResponseModel), 401)]
-        [ProducesResponseType(typeof(BaseResponseModel), 422)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 401)]
+        [ProducesResponseType(typeof(ProblemDetails), 422)]
         [SwaggerOperation(
             Summary = "Update User",
             Description = "Update User description",
@@ -90,11 +91,11 @@ namespace DotNetConf.Api.Controllers
                 : Ok(CreateLinksForUser(new BaseResponseModel<UserModel>(userModel)));
         }
 
-        [HttpDelete("{username}", Name = nameof(UserDeleteByUsername))]
-        [ProducesResponseType(typeof(BaseResponseModel), 202)]
-        [ProducesResponseType(typeof(BaseResponseModel), 400)]
-        [ProducesResponseType(typeof(BaseResponseModel), 401)]
-        [ProducesResponseType(typeof(BaseResponseModel), 404)]
+        [HttpDelete("{username}", Name = nameof(UserDeleteByUsername), Order = 4)]
+        [ProducesResponseType(typeof(BaseResponseModel), 200)]
+        [ProducesResponseType(typeof(ProblemDetails), 400)]
+        [ProducesResponseType(typeof(ProblemDetails), 401)]
+        [ProducesResponseType(typeof(ProblemDetails), 404)]
         [SwaggerOperation(
             Summary = "Delete User",
             Description = "Delete User description",

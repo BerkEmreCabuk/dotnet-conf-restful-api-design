@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 namespace DotNetConf.Api.Controllers.Base
 {
     [ApiController]
-    [Produces("application/json")]
     [Authorize]
+    [Produces("application/json")]
+    [Consumes("application/json")]
     public class BaseController : Controller
     {
     }

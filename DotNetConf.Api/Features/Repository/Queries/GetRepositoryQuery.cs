@@ -6,7 +6,6 @@ using DotNetConf.Api.Features.User.Queries;
 using DotNetConf.Api.Infrastructures.Database;
 using DotNetConf.Api.Models.Exceptions;
 using MediatR;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -62,7 +61,8 @@ namespace DotNetConf.Api.Features.Repository.Queries
             var repositoryEntity = await _service.FindAsync<RepositoryEntity>(x =>
             x.UserId == userId &&
             x.Status == RecordStatuses.ACTIVE &&
-            (!string.IsNullOrEmpty(request.Name) && x.Name == request.Name) || (request.Id.HasValue && x.Id == request.Id.Value));
+            (!string.IsNullOrEmpty(request.Name) && x.Name == request.Name) || (request.Id.HasValue && x.Id == request.Id.Value),
+            x => x.User);
 
             return _mapper.Map<RepositoryEntity, RepositoryModel>(repositoryEntity);
         }

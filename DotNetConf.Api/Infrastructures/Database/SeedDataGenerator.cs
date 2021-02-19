@@ -1,4 +1,5 @@
 ﻿using DotNetConf.Api.Entities;
+using DotNetConf.Api.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -30,10 +31,20 @@ namespace DotNetConf.Api.Infrastructures.Database
                     tempUser.Add();
                     context.Users.Add(tempUser);
                 }
-
+                for (int i = 1; i < 5; i++)
+                {
+                    var tempRepository = new RepositoryEntity();
+                    tempRepository.Name = "Repo" + i;
+                    tempRepository.Description = "Description";
+                    tempRepository.IsFork = false;
+                    tempRepository.IsPrivate = true;
+                    tempRepository.UserId = 1;
+                    tempRepository.Add();
+                    context.Repositories.Add(tempRepository);
+                }
                 context.SaveChanges();
 
-                var test = context.Users.ToList();
+                var test = context.Repositories.Include(x=>x.User).ToList();
             }
         }
     }

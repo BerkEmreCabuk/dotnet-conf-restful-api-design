@@ -19,6 +19,7 @@ namespace DotNetConf.Api.Controllers
     [ApiVersion("1.0")]
     [Route("v{version:apiVersion}/identities")]
     [Produces("application/json")]
+    [Consumes("application/json")]
     public class IdentityController : Controller
     {
         private readonly IOptions<IdentitySettingModel> _settings;

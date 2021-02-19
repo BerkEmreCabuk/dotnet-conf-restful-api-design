@@ -10,7 +10,7 @@ namespace DotNetConf.Api.Infrastructures.Swaggers
     public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
     {
         readonly IApiVersionDescriptionProvider provider;
-
+        
         public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider) => this.provider = provider;
         public void Configure(SwaggerGenOptions options)
         {
