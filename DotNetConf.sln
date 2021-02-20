@@ -5,11 +5,6 @@ VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetConf.Api", "DotNetConf.Api\DotNetConf.Api.csproj", "{22118959-CE4A-48D6-A3DA-72D60DC3813E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{59F9C6E5-333B-437F-8ECF-5B56DD76C552}"
-	ProjectSection(SolutionItems) = preProject
-		..\..\Users\emre.cabuk\Desktop\dotnet-conf\RestfulApiDesignSunum.pptx = ..\..\Users\emre.cabuk\Desktop\dotnet-conf\RestfulApiDesignSunum.pptx
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
