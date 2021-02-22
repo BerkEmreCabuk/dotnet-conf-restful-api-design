@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace DotNetConf.Api.Models
+﻿namespace DotNetConf.Api.Features.Identity.Models
 {
     public class IdentitySettingModel
     {

@@ -11,6 +11,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DotNetConf.Api.Controllers
 {
@@ -59,6 +60,7 @@ namespace DotNetConf.Api.Controllers
         }
 
         [HttpPost(Name = nameof(UserCreate), Order = 2)]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(BaseResponseModel<UserModel>), 201)]
         [ProducesResponseType(typeof(ProblemDetails), 400)]
         [ProducesResponseType(typeof(ProblemDetails), 401)]
