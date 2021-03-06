@@ -1,17 +1,14 @@
-﻿using DotNetConf.Api.Models;
+﻿using System.Threading.Tasks;
+using DotNetConf.Api.Features.Identity.Commands;
+using DotNetConf.Api.Features.Identity.Models;
 using DotNetConf.Api.Models.BaseModels;
-using DotNetConf.Api.Models.Exceptions;
-using DotNetConf.Api.Models.Identity;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Annotations;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DotNetConf.Api.Controllers
 {
@@ -23,36 +20,54 @@ namespace DotNetConf.Api.Controllers
     public class IdentityController : Controller
     {
         private readonly IOptions<IdentitySettingModel> _settings;
+        private readonly LinkGenerator _linkGenerator;
+        private readonly IMediator _mediator;
 
         public IdentityController(
-            IOptions<IdentitySettingModel> settings)
+            IOptions<IdentitySettingModel> settings, IMediator mediator, LinkGenerator linkGenerator)
         {
             _settings = settings;
+            _mediator = mediator;
+            _linkGenerator = linkGenerator;
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(BaseResponseModel<IdentityResponseModel>), 200)]
         [ProducesResponseType(typeof(BaseResponseModel), 400)]
         [ProducesResponseType(typeof(BaseResponseModel), 404)]
         [SwaggerOperation(
             Summary = "Get Token",
             Description = "Get Token description",
-            Tags = new string[] { "Auth" })]
-        public ActionResult GetToken([FromBody]IdentityRequestModel model)
+            Tags = new[] {"Auth"})]
+        public async Task<ActionResult<IdentityResponseModel>> GetToken([FromBody] CreateJwtTokenCommand model)
         {
-            if (model.UserName != "user" || model.Password != "1234")
-                throw new NotFoundException("Not Found User");
+            var response = new BaseResponseModel<IdentityResponseModel>(await _mediator.Send(model));
+            return Created(string.Empty, CreateLinksForIdentity(response));
+        }
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_settings.Value.SecretKey));
-            var jwt = new JwtSecurityToken(
-                issuer: _settings.Value.Iss,
-                audience: _settings.Value.Aud,
-                expires: DateTime.UtcNow.AddDays(1),
-                signingCredentials: new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256)
-            );
-            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-            return Ok(new IdentityResponseModel(encodedJwt));
+        private BaseResponseModel CreateLinksForIdentity(BaseResponseModel model)
+        {
+            var controllerName =
+                nameof(IdentityController)
+                    .Replace("Controller", "");
+
+            if (!HttpContext.Request.RouteValues.TryGetValue("version", out var version))
+                version = ApiVersion.Default;
+
+            model.Links.Add(
+                new LinkModel
+                {
+                    Href = _linkGenerator.GetPathByAction(
+                        HttpContext,
+                        nameof(GetToken),
+                        controllerName,
+                        new {version = version?.ToString()}
+                    ),
+                    Method = HttpMethod.Get.ToString(),
+                    Description = "Get Identity's information"
+                });
+            return model;
         }
     }
 }

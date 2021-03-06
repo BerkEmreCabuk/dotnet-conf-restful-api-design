@@ -33,6 +33,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using DotNetConf.Api.Features.Identity.Models;
 
 namespace DotNetConf.Api
 {
